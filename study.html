@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Distributed Systems Study App</title>
+<style>body{font-family:system-ui,Arial;margin:0;background:#f4f6fb;color:#1d2433}header{background:#24345a;color:#fff;padding:18px 24px}main{max-width:900px;margin:auto;padding:20px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 4px #0001}.big{font-size:32px;font-weight:700}
+.flash{min-height:150px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:20px;cursor:pointer}button{background:#24345a;color:#fff;border:0;border-radius:8px;padding:10px 16px;margin:4px;cursor:pointer}button.alt{background:#e07a1f}
+.bar{height:10px;background:#dde3f0;border-radius:6px}.bar>i{display:block;height:100%;background:#2e9e6b;border-radius:6px}@media(max-width:600px){.grid{grid-template-columns:1fr}}</style></head><body>
+<header><h1 style="margin:0">Study Guide: Distributed Systems Basics</h1><small>Built from my notes on consistency, replication and consensus</small></header>
+<main><section class="grid" id="dash"></section>
+<h2>Flashcards</h2><div class="card flash" id="card" onclick="flip()"></div>
+<div style="text-align:center"><button onclick="mark(false)">Still learning</button><button class="alt" onclick="mark(true)">Got it</button></div>
+<h2>Quick quiz</h2><div class="card" id="quiz"></div></main>
+<script>
+const cards=[["CAP theorem","During a network partition a system must choose between consistency and availability."],["Quorum (N, R, W)","With N replicas, R + W > N guarantees a read overlaps the latest write."],["Leader election","Picking one node to order writes; Raft uses randomized timeouts and terms."],["Write-ahead log","Changes are appended to a durable log before being applied, so a crash can be replayed."],["Idempotency","Running an operation twice has the same effect as once; key for safe retries."],["Vector clock","Per-node counters that detect whether two events are ordered or concurrent."],["Eventual consistency","If writes stop, all replicas converge to the same value."],["Two-phase commit","Coordinator asks all participants to prepare, then commit; blocks if the coordinator fails."]];
+const quiz=[["N=3, W=2. What R guarantees reading the latest write?",["1","2","3"],1],["Which property makes retries safe?",["Idempotency","Sharding","Caching"],0],["Raft avoids split votes using...",["Vector clocks","Randomized election timeouts","2PC"],1]];
+let st={};try{st=JSON.parse(localStorage.study||'{}')}catch(e){}let i=0,showBack=false,q=0,score=0;
+function save(){try{localStorage.study=JSON.stringify(st)}catch(e){}}
+function dash(){const known=cards.filter(c=>st[c[0]]).length;const pct=Math.round(100*known/cards.length);
+document.getElementById('dash').innerHTML=`<div class=card><div>Cards mastered</div><div class=big>${known}/${cards.length}</div><div class=bar><i style="width:${pct}%"></i></div></div><div class=card><div>Quiz score</div><div class=big>${score}/${quiz.length}</div></div><div class=card><div>Next up</div><div style="font-weight:600;margin-top:8px">${(cards.find(c=>!st[c[0]])||['All done!'])[0]}</div></div>`}
+function show(){const c=cards[i];document.getElementById('card').textContent=showBack?c[1]:c[0]}
+function flip(){showBack=!showBack;show()}function mark(ok){st[cards[i][0]]=ok;save();i=(i+1)%cards.length;showBack=false;show();dash()}
+function renderQ(){const el=document.getElementById('quiz');if(q>=quiz.length){el.innerHTML=`<b>Done! ${score}/${quiz.length}</b> <button onclick="q=0;score=0;renderQ();dash()">Retry</button>`;return}
+const [t,opts,a]=quiz[q];el.innerHTML=`<p><b>${t}</b></p>`+opts.map((o,k)=>`<button onclick="answer(${k})">${o}</button>`).join('')}
+function answer(k){if(k===quiz[q][2])score++;q++;renderQ();dash()}
+show();renderQ();dash();
+</script></body></html>

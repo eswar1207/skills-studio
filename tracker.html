@@ -1,0 +1,22 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title id="t">Tracker</title>
+<style>body{font-family:system-ui,Arial;margin:0;background:#f5f6f8;color:#1d2433}header{background:#1f3a5f;color:#fff;padding:16px 24px}main{padding:16px 24px}
+.cols{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(200px,1fr);gap:12px;overflow-x:auto}.col{background:#e8ebf1;border-radius:10px;padding:10px;min-height:200px}.col h3{margin:4px 0 10px;font-size:15px}
+.item{background:#fff;border-radius:8px;padding:10px;margin-bottom:8px;box-shadow:0 1px 3px #0002;font-size:14px}.item b{display:block}.item select{margin-top:6px;width:100%}
+form{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}input,select{padding:8px;border:1px solid #bbb;border-radius:6px}button{background:#e07a1f;color:#fff;border:0;border-radius:6px;padding:8px 14px;cursor:pointer}.stats{display:flex;gap:16px;margin:8px 0 16px;flex-wrap:wrap}.stat{background:#fff;padding:10px 14px;border-radius:8px}</style></head><body>
+<header><h1 id="h" style="margin:0"></h1><small id="sub"></small></header><main>
+<div class="stats" id="stats"></div>
+<form onsubmit="add(event)"><input id="a" required><input id="b"><input id="c" type="date"><button>Add</button></form>
+<div class="cols" id="cols"></div></main>
+<script>
+// One file, two modes: ?mode=crm (sales pipeline) or default (job search command center).
+const crm=new URLSearchParams(location.search).get('mode')==='crm';
+const M=crm?{title:'Sales CRM',sub:'Track leads from first touch to closed deal',a:'Company',b:'Contact / deal size',c:'Next follow-up',stages:['Lead','Contacted','Demo','Proposal','Won','Lost'],key:'crm',seed:[['Northwind Clinics','Ops lead, $12k','Contacted'],['Bluefin Logistics','IT manager, $30k','Demo'],['Maple Learning','Founder, $6k','Lead']]}
+:{title:'Job Search Command Center',sub:'Every application, contact and next step in one place',a:'Role and company',b:'Contact or source',c:'Next step date',stages:['Saved','Applied','Recruiter screen','Interview','Offer','Closed'],key:'jobs',seed:[['Backend Engineer, Acme Cloud','Referral: alumni','Applied'],['AI Evaluation Specialist, Lumen Labs','Handshake posting','Recruiter screen'],['Platform Engineer, Orbit','Company site','Saved']]};
+document.title=M.title;h.textContent=M.title;sub.textContent=M.sub;a.placeholder=M.a;b.placeholder=M.b;
+let items;try{items=JSON.parse(localStorage[M.key])}catch(e){}if(!items)items=M.seed.map(([x,y,s])=>({x,y,s,d:''}));
+function save(){try{localStorage[M.key]=JSON.stringify(items)}catch(e){}}
+function render(){cols.innerHTML=M.stages.map(s=>`<div class=col><h3>${s} (${items.filter(i=>i.s===s).length})</h3>${items.map((it,k)=>it.s!==s?'':`<div class=item><b>${it.x}</b>${it.y||''}${it.d?`<br><small>Next: ${it.d}</small>`:''}<select onchange="items[${k}].s=this.value;save();render()">${M.stages.map(o=>`<option ${o===s?'selected':''}>${o}</option>`).join('')}</select></div>`).join('')}</div>`).join('');
+const due=items.filter(i=>i.d&&i.d<=new Date().toISOString().slice(0,10)).length;stats.innerHTML=`<div class=stat>Total: <b>${items.length}</b></div><div class=stat>Active: <b>${items.filter(i=>!/Closed|Lost|Won|Offer/.test(i.s)).length}</b></div><div class=stat>Follow-ups due: <b>${due}</b></div>`}
+function add(e){e.preventDefault();items.push({x:a.value,y:b.value,d:c.value,s:M.stages[0]});save();render();e.target.reset()}
+render();
+</script></body></html>

@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Exam Season Jar</title>
+<style>body{font-family:system-ui,Arial;margin:0;background:#fff4e6;color:#4a2c10;text-align:center;padding:24px}.jar{width:220px;height:260px;margin:20px auto;border:6px solid #c97a2b;border-top:14px solid #8a4b12;border-radius:20px 20px 60px 60px;background:linear-gradient(#fff4e600,#ffd59a);display:flex;align-items:center;justify-content:center;font-size:60px;cursor:pointer;user-select:none}
+#note{min-height:80px;font-size:20px;max-width:420px;margin:auto;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px #0001}.days{margin-top:16px;font-size:15px}</style></head><body>
+<h1>Your Exam Season Jar</h1><p>Tap the jar once a day for a note. One for every day until your last exam.</p>
+<div class="jar" onclick="pick()" role="button" aria-label="Open a note">💌</div><div id="note">Tap the jar ☝️</div><p class="days" id="cnt"></p>
+<script>
+const N=["You've already survived harder weeks than this one.","Water, a walk, then one chapter. That's the whole plan for today.","Remember the night you explained recursion to the whole group? You know this stuff.","Coffee's on me after the last paper.","Break it into 25-minute pieces. You only have to do the next piece.","Your future self is going to be so proud of today's you.","It's okay to have a bad study day. Tomorrow is a new jar note.","Mock exam scores aren't final scores.","Sleep is studying too. Go to bed.","Last one: you did it. Now go celebrate!"];
+let seen;try{seen=JSON.parse(localStorage.jar)}catch(e){}seen=seen||[];
+function pick(){const left=N.map((_,i)=>i).filter(i=>!seen.includes(i));if(!left.length){note.textContent='The jar is empty. You made it! 🎉';return}const i=left[Math.floor(Math.random()*left.length)];seen.push(i);try{localStorage.jar=JSON.stringify(seen)}catch(e){}note.textContent=N[i];cnt.textContent=`${N.length-seen.length} notes left`}
+cnt.textContent=`${N.length-seen.length} notes left`;
+</script></body></html>

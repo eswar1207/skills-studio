@@ -1,0 +1,13 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PlantPal prototype</title>
+<style>body{font-family:system-ui,Arial;margin:0;background:#e9f1ea;display:flex;justify-content:center;padding:20px}.phone{width:360px;height:700px;background:#fbfdf9;border-radius:36px;box-shadow:0 10px 30px #0003;overflow:hidden}
+.scr{display:none;height:100%;flex-direction:column}.scr.on{display:flex}.top{background:#2f6b3f;color:#fff;padding:26px 20px 16px}.body{padding:16px;flex:1;overflow:auto}.plant{display:flex;gap:12px;align-items:center;padding:12px;background:#fff;border-radius:14px;margin-bottom:10px;box-shadow:0 1px 3px #0002;cursor:pointer}
+.ic{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;background:#dcefdc}.due{color:#c0392b;font-weight:700}.btn{background:#2f6b3f;color:#fff;border:0;border-radius:12px;padding:14px;width:100%;font-weight:700;cursor:pointer;margin-top:10px}.back{background:none;border:0;color:#fff;font-size:15px;cursor:pointer;padding:0}</style></head><body>
+<div class="phone"><div class="scr on" id="list"><div class="top"><h2 style="margin:0">PlantPal</h2><small>Your plants, watered on time</small></div><div class="body" id="pl"></div></div>
+<div class="scr" id="det"><div class="top"><button class="back" onclick="show('list')">‹ Back</button><h2 id="dn" style="margin:6px 0 0"></h2></div><div class="body" id="dd"></div></div></div>
+<script>
+const today=new Date();const P=[{n:'Monstera',i:'🌿',every:7,last:6,tip:'Bright, indirect light. Let the top 2 inches dry out.'},{n:'Snake plant',i:'🪴',every:14,last:15,tip:'Low light is fine. Overwatering is the main risk.'},{n:'Basil',i:'🌱',every:2,last:1,tip:'Pinch the tops weekly so it bushes out.'}];
+function left(p){return p.every-p.last}
+function show(s,k){document.querySelectorAll('.scr').forEach(x=>x.classList.toggle('on',x.id===s));if(s==='det'){const p=P[k];dn.textContent=p.i+' '+p.n;dd.innerHTML=`<p>Water every <b>${p.every} days</b>.</p><p>${left(p)<=0?'<span class=due>Needs water today</span>':`Next watering in <b>${left(p)} days</b>`}</p><p>${p.tip}</p><button class=btn onclick="P[${k}].last=0;show('list')">I watered it</button>`}else render()}
+function render(){pl.innerHTML=P.slice().map((p,k)=>[p,k]).sort((a,b)=>left(a[0])-left(b[0])).map(([p,k])=>`<div class=plant onclick="show('det',${k})"><div class=ic>${p.i}</div><div><b>${p.n}</b><br>${left(p)<=0?'<span class=due>Water today</span>':`in ${left(p)} days`}</div></div>`).join('')}
+render();
+</script></body></html>

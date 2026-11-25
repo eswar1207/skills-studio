@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Eswar Kousik: Visual Resume</title>
+<style>body{font-family:system-ui,Arial;margin:0;background:#f6f7fb;color:#1b2333}header{background:linear-gradient(120deg,#1f3a5f,#3b6ea5);color:#fff;padding:36px 24px}main{max-width:920px;margin:auto;padding:20px}
+h1{margin:0}.tags span{display:inline-block;background:#ffffff26;padding:4px 10px;border-radius:20px;margin:4px 4px 0 0;font-size:13px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 4px #0001}.n{font-size:34px;font-weight:800;color:#e07a1f}#chat{background:#fff;border-radius:12px;padding:16px}#log p{margin:6px 0}.q{color:#1f3a5f;font-weight:600}
+input{padding:10px;width:70%;border:1px solid #bbb;border-radius:8px}button{padding:10px 14px;border:0;border-radius:8px;background:#e07a1f;color:#fff;cursor:pointer}.chips button{background:#e8ebf1;color:#1b2333;margin:3px}@media(max-width:650px){.grid{grid-template-columns:1fr}}</style></head><body>
+<header><h1>Eswar Kousik</h1><p>Benchmark task author and software engineer: full-stack, AI evaluation, distributed systems</p>
+<div class="tags"><span>Python</span><span>Java / Spring Boot</span><span>Docker &amp; Linux</span><span>LLM evaluation</span><span>Telugu / English</span></div></header>
+<main><h2>Three things to remember</h2><div class="grid">
+<div class="card"><div class="n">100+</div>Terminal-Bench / Harbor benchmark task submissions shipped through a 17-stage review pipeline</div>
+<div class="card"><div class="n">3 yrs</div>Freelance full-stack and AI engineering, plus Spring Boot microservices at Cognizant</div>
+<div class="card"><div class="n">80+</div>passing tests across three systems projects: distributed KV store, flash-sale engine, ML image pipeline</div></div>
+<h2>Ask my resume ambassador</h2><div id="chat"><div class="chips"><button onclick="ask(this.textContent)">What do you build?</button><button onclick="ask(this.textContent)">Best project?</button><button onclick="ask(this.textContent)">What languages?</button><button onclick="ask(this.textContent)">Why AI evaluation?</button></div>
+<div id="log"></div><form onsubmit="event.preventDefault();ask(qin.value);qin.value=''"><input id="qin" placeholder="Ask about my experience"><button>Ask</button></form></div></main>
+<script>
+// Answers only from facts on this page; unknown questions get an honest fallback.
+const A=[[/build|do|work/i,"I build Dockerized benchmark environments that frontier AI agents are tested in: a Linux environment, a reference solution and a pytest verifier for each task."],
+[/project|best|proud/i,"dynamo-kv, a distributed key-value store, and a flash-sale order engine. Both are benchmarked and covered by tests."],
+[/language|stack|skill/i,"Python and Java day to day, with Spring Boot, Docker, Git and CI. Also Pandas, NumPy and Power BI for data work."],
+[/ai|eval|why/i,"I like finding where models really fail. I tune task difficulty with pass@k gates so a failure reflects a reasoning gap, not a broken test."]];
+function ask(q){if(!q.trim())return;const hit=A.find(([r])=>r.test(q));log.innerHTML+=`<p class=q>You: ${q.replace(/</g,'&lt;')}</p><p>${hit?hit[1]:"I don't have that on my resume yet. Reach out on Handshake and I'll answer directly."}</p>`}
+</script></body></html>

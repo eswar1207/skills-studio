@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RecipeScaler: shows its work</title>
+<style>body{font-family:system-ui,Arial;margin:0;background:#0e1525;color:#e6ecff}main{max-width:980px;margin:auto;padding:20px}textarea{width:100%;height:120px;border-radius:8px;padding:10px;font-family:monospace}
+input{padding:8px;border-radius:6px;border:0;width:70px}button{background:#4f8cff;color:#fff;border:0;border-radius:8px;padding:10px 16px;cursor:pointer}.flow{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+.step{flex:1;min-width:150px;background:#18223a;border:2px solid #2c3a5e;border-radius:10px;padding:10px}.ok{border-color:#2fd08b}.warn{border-color:#f6c945}.fail{border-color:#ef4b4b}.step small{display:block;opacity:.8;margin-top:4px}
+pre{background:#18223a;padding:12px;border-radius:8px;white-space:pre-wrap}</style></head><body><main>
+<h1>RecipeScaler</h1><p>Paste ingredients, choose servings, and watch every step of the run. Bad lines don't crash the run: they are flagged and skipped.</p>
+<textarea id="in">2 cups flour
+1.5 tsp baking soda
+3 eggs
+a pinch of salt
+1/2 cup sugar
+banana x</textarea>
+<p>From <input id="from" value="4" type="number"> servings to <input id="to" value="6" type="number"> <button onclick="run()">Run</button></p>
+<h2>How it works (last run)</h2><div class="flow" id="flow"></div><h2>Result</h2><pre id="out"></pre></main>
+<script>
+function frac(s){if(/^\d+\/\d+$/.test(s)){const[a,b]=s.split('/');return b==0?NaN:a/b}return parseFloat(s)}
+function run(){const steps=[];const t0=performance.now();const lines=in_.value.split('\n').map(l=>l.trim()).filter(Boolean);steps.push(['Parse input',`${lines.length} lines read`,'ok']);
+const f=+from.value,t=+to.value;if(!(f>0&&t>0)){steps.push(['Validate servings','Servings must be positive numbers; run stopped','fail']);draw(steps,'');return}
+const factor=t/f;steps.push(['Validate servings',`factor = ${t}/${f} = ${factor.toFixed(3)}`,'ok']);const good=[],bad=[];
+for(const l of lines){const m=l.match(/^(\d+(?:\.\d+)?|\d+\/\d+)\s+(.*)$/);const q=m?frac(m[1]):NaN;if(m&&isFinite(q))good.push([q,m[2]]);else bad.push(l)}
+steps.push(['Extract quantities',`${good.length} parsed, ${bad.length} flagged`,bad.length?'warn':'ok']);const scaled=good.map(([q,r])=>`${+(q*factor).toFixed(2)} ${r}`);
+steps.push(['Scale',`${scaled.length} lines x ${factor.toFixed(2)}`,'ok']);steps.push(['Format output',`${(performance.now()-t0).toFixed(1)} ms total`,'ok']);
+draw(steps,scaled.join('\n')+(bad.length?`\n\nNot scaled (no leading number): \n- ${bad.join('\n- ')}`:''))}
+function draw(steps,o){flow.innerHTML=steps.map(([n,d,s],i)=>`<div class="step ${s}"><b>${i+1}. ${n}</b><small>${d}</small></div>`).join('');out.textContent=o}
+const in_=document.getElementById('in');run();
+</script></body></html>

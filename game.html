@@ -1,0 +1,17 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Drop Four: Pass-and-Play</title>
+<style>body{font-family:system-ui,Arial;background:#101830;color:#fff;text-align:center;margin:0;padding:16px}#b{display:inline-grid;grid-template-columns:repeat(7,52px);gap:6px;background:#2747a8;padding:10px;border-radius:14px}
+.c{width:52px;height:52px;border-radius:50%;background:#101830;cursor:pointer}.r{background:#ef4b4b}.y{background:#f6c945}.w{outline:4px solid #fff}#s{font-size:22px;margin:12px}button{padding:10px 18px;border:0;border-radius:8px;background:#f6c945;font-weight:700;cursor:pointer}
+input{padding:8px;border-radius:6px;border:0;width:120px}</style></head><body>
+<h1>Drop Four</h1><p>Two players, one screen. Line up four in a row to win.</p>
+<p><input id="p1" value="Player 1"> vs <input id="p2" value="Player 2"></p>
+<div id="s"></div><div id="b"></div><p><button onclick="reset()">New game</button></p><p id="tally"></p>
+<script>
+const R=6,C=7;let g,turn,over,wins={r:0,y:0};
+function name(t){return document.getElementById(t==='r'?'p1':'p2').value||t}
+function reset(){g=Array.from({length:R},()=>Array(C).fill(''));turn='r';over=false;draw()}
+function drop(c){if(over)return;for(let r=R-1;r>=0;r--)if(!g[r][c]){g[r][c]=turn;const w=win(r,c);if(w){over=true;wins[turn]++;draw(w);return}if(g.every(row=>row.every(x=>x))){over=true;draw();document.getElementById('s').textContent="It's a draw!";return}turn=turn==='r'?'y':'r';draw();return}}
+function win(r,c){const t=g[r][c];for(const[dr,dc]of[[0,1],[1,0],[1,1],[1,-1]]){let cells=[[r,c]];for(const s of[1,-1]){let k=1;while(true){const rr=r+dr*k*s,cc=c+dc*k*s;if(rr<0||rr>=R||cc<0||cc>=C||g[rr][cc]!==t)break;cells.push([rr,cc]);k++}}if(cells.length>=4)return cells}return null}
+function draw(w){const b=document.getElementById('b');b.innerHTML='';const ws=new Set((w||[]).map(x=>x.join()));for(let r=0;r<R;r++)for(let c=0;c<C;c++){const d=document.createElement('div');d.className='c '+g[r][c]+(ws.has(r+','+c)?' w':'');d.onclick=()=>drop(c);b.appendChild(d)}
+document.getElementById('s').textContent=w?`${name(turn)} wins!`:`${name(turn)}'s turn (${turn==='r'?'red':'yellow'})`;document.getElementById('tally').textContent=`Score: ${name('r')} ${wins.r} - ${wins.y} ${name('y')}`}
+reset();
+</script></body></html>

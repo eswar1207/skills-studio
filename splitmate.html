@@ -1,0 +1,20 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SplitMate prototype</title>
+<style>body{font-family:system-ui,Arial;margin:0;background:#dfe6f0;display:flex;justify-content:center;padding:20px}.phone{width:360px;height:700px;background:#fff;border-radius:36px;box-shadow:0 10px 30px #0003;overflow:hidden;position:relative}
+.scr{display:none;height:100%;flex-direction:column}.scr.on{display:flex}.top{background:#5b3df5;color:#fff;padding:26px 20px 18px}.top h2{margin:0}.body{padding:16px;flex:1;overflow:auto}
+.row{display:flex;justify-content:space-between;padding:12px;border-radius:10px;background:#f3f1ff;margin-bottom:8px}.btn{background:#5b3df5;color:#fff;border:0;border-radius:12px;padding:14px;width:100%;font-weight:700;margin-top:8px;cursor:pointer}
+.nav{display:flex;border-top:1px solid #eee}.nav button{flex:1;padding:14px;border:0;background:#fff;cursor:pointer}input,select{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;margin:6px 0;box-sizing:border-box}.owe{color:#d33}.get{color:#1a8a4a}</style></head><body>
+<div class="phone">
+<div class="scr on" id="home"><div class="top"><small>Apartment 4B</small><h2>You're owed $<span id="net"></span></h2></div><div class="body" id="bal"></div><div class="nav"><button onclick="go('home')">Home</button><button onclick="go('add')">+ Expense</button><button onclick="go('settle')">Settle</button></div></div>
+<div class="scr" id="add"><div class="top"><h2>Add expense</h2></div><div class="body"><input id="d" placeholder="What was it? e.g. Groceries"><input id="amt" type="number" placeholder="Amount ($)"><select id="by"><option>You</option><option>Priya</option><option>Sam</option></select><button class="btn" onclick="addE()">Split evenly 3 ways</button></div><div class="nav"><button onclick="go('home')">Back</button></div></div>
+<div class="scr" id="settle"><div class="top"><h2>Settle up</h2></div><div class="body" id="plan"></div><div class="nav"><button onclick="go('home')">Back</button></div></div>
+</div>
+<script>
+const P=['You','Priya','Sam'];let ex=[{d:'Groceries',a:90,by:'You'},{d:'Internet',a:60,by:'Priya'},{d:'Pizza night',a:45,by:'You'}];
+function go(s){document.querySelectorAll('.scr').forEach(x=>x.classList.toggle('on',x.id===s));render()}
+function bal(){const b=Object.fromEntries(P.map(p=>[p,0]));ex.forEach(e=>{b[e.by]+=e.a;P.forEach(p=>b[p]-=e.a/3)});return b}
+function render(){const b=bal();net.textContent=Math.max(0,b.You).toFixed(2);document.getElementById('bal').innerHTML=ex.map(e=>`<div class=row><span>${e.d}<br><small>paid by ${e.by}</small></span><b>$${e.a}</b></div>`).join('')+P.filter(p=>p!=='You').map(p=>`<div class=row><span>${p}</span><b class="${b[p]<0?'owe':'get'}">${b[p]<0?'owes':'is owed'} $${Math.abs(b[p]).toFixed(2)}</b></div>`).join('');
+const debt=P.filter(p=>b[p]<-0.005).map(p=>[p,-b[p]]),cred=P.filter(p=>b[p]>0.005).map(p=>[p,b[p]]);const out=[];for(const d of debt)for(const c of cred){const x=Math.min(d[1],c[1]);if(x>0.005){out.push(`${d[0]} pays ${c[0]} $${x.toFixed(2)}`);d[1]-=x;c[1]-=x}}
+plan.innerHTML=(out.length?out:['All square!']).map(t=>`<div class=row>${t}</div>`).join('')+'<button class=btn onclick="ex=[];go(\'home\')">Mark all settled</button>'}
+function addE(){const a=+amt.value;if(!d.value||!(a>0)){alert('Add a description and a positive amount');return}ex.push({d:d.value,a,by:by.value});d.value='';amt.value='';go('home')}
+render();
+</script></body></html>

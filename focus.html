@@ -1,0 +1,20 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FocusBlocks</title>
+<style>body{font-family:system-ui,Arial;margin:0;background:#0f2a24;color:#eafff6;display:flex;justify-content:center}main{max-width:560px;width:100%;padding:20px}
+#clock{font-size:72px;font-weight:700;text-align:center;margin:10px 0}button{background:#2fd08b;color:#0f2a24;border:0;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer;margin:3px}
+li{background:#163a32;margin:6px 0;padding:10px;border-radius:8px;list-style:none;display:flex;justify-content:space-between;align-items:center}li.done span{text-decoration:line-through;opacity:.6}input{padding:10px;border-radius:8px;border:0;width:65%}ul{padding:0}</style></head><body><main>
+<h1>FocusBlocks</h1><p>Pick a task, run a 25-minute block, log it. See where your week actually went.</p>
+<div id="clock">25:00</div><div style="text-align:center"><button onclick="start()">Start</button><button onclick="stop()">Pause</button><button onclick="resetT()">Reset</button></div>
+<p>Current task: <b id="cur">none</b></p>
+<form onsubmit="add(event)"><input id="nt" placeholder="Add a task" required><button>Add</button></form><ul id="list"></ul>
+<p id="sum"></p></main>
+<script>
+let tasks;try{tasks=JSON.parse(localStorage.fb)}catch(e){}tasks=tasks||[{t:'Read chapter 4',b:0,d:false},{t:'Problem set 2',b:0,d:false}];let cur=0,left=1500,timer=null;
+function save(){try{localStorage.fb=JSON.stringify(tasks)}catch(e){}}
+function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+function tick(){left--;clock.textContent=fmt(left);if(left<=0){stop();if(tasks[cur])tasks[cur].b++;save();render();left=1500;clock.textContent=fmt(left)}}
+function start(){if(!timer)timer=setInterval(tick,1000)}function stop(){clearInterval(timer);timer=null}function resetT(){stop();left=1500;clock.textContent=fmt(left)}
+function add(e){e.preventDefault();tasks.push({t:nt.value,b:0,d:false});nt.value='';save();render()}
+function render(){list.innerHTML=tasks.map((x,i)=>`<li class="${x.d?'done':''}"><span onclick="cur=${i};render()" style="cursor:pointer">${i===cur?'▶ ':''}${x.t} (${x.b} blocks)</span><button onclick="tasks[${i}].d=!tasks[${i}].d;save();render()">${x.d?'Undo':'Done'}</button></li>`).join('');
+document.getElementById('cur').textContent=tasks[cur]?tasks[cur].t:'none';const tot=tasks.reduce((a,x)=>a+x.b,0);sum.textContent=`Total focus: ${tot} blocks (${(tot*25/60).toFixed(1)} hours). ${tasks.filter(x=>x.d).length}/${tasks.length} tasks done.`}
+render();
+</script></body></html>

@@ -1,0 +1,13 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gallery: Generative Landscapes</title>
+<style>body{font-family:system-ui,Arial;margin:0;background:#111;color:#eee}header{padding:24px;text-align:center}.f button{background:#222;color:#eee;border:1px solid #444;border-radius:20px;padding:6px 14px;margin:3px;cursor:pointer}.f button.on{background:#eee;color:#111}
+.g{columns:3 260px;gap:10px;padding:10px}.g img{width:100%;margin-bottom:10px;border-radius:8px;cursor:zoom-in;transition:transform .2s}.g img:hover{transform:scale(1.02)}#lb{position:fixed;inset:0;background:#000d;display:none;align-items:center;justify-content:center;flex-direction:column}#lb img{max-width:92vw;max-height:82vh;border-radius:8px}#lb p{margin:10px}</style></head><body>
+<header><h1>Generative Landscapes</h1><p>Twelve scenes made with code. Filter by time of day, click to enlarge, use arrow keys to browse.</p><div class="f" id="f"></div></header><div class="g" id="g"></div>
+<div id="lb" onclick="if(event.target.id==='lb')close_()"><img id="lbi" alt=""><p id="lbc"></p></div>
+<script>
+const I=Array.from({length:12},(_,i)=>({src:`scene${i+1}.png`,tag:['Dawn','Day','Dusk','Night'][i%4],cap:`Scene ${i+1}`}));let filt='All',cur=-1;
+f.innerHTML=['All','Dawn','Day','Dusk','Night'].map(t=>`<button onclick="filt='${t}';draw()">${t}</button>`).join('');
+function vis(){return I.filter(x=>filt==='All'||x.tag===filt)}
+function draw(){[...f.children].forEach(b=>b.classList.toggle('on',b.textContent===filt));g.innerHTML=vis().map((x,k)=>`<img src="${x.src}" alt="${x.cap}, ${x.tag}" onclick="open_(${k})">`).join('')}
+function open_(k){cur=k;const x=vis()[k];lbi.src=x.src;lbc.textContent=`${x.cap} · ${x.tag}`;lb.style.display='flex'}function close_(){lb.style.display='none';cur=-1}
+document.onkeydown=e=>{if(cur<0)return;const n=vis().length;if(e.key==='ArrowRight')open_((cur+1)%n);if(e.key==='ArrowLeft')open_((cur-1+n)%n);if(e.key==='Escape')close_()};draw();
+</script></body></html>
