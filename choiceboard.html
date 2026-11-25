@@ -1,0 +1,28 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Choice Boards</title>
+<style>body{font-family:system-ui,Arial;margin:0;background:#fdf7ee;color:#2b2112}.wrap{max-width:980px;margin:auto;padding:24px 18px}.tabs button{border:1px solid #e2c99c;background:#fff;border-radius:20px;padding:7px 14px;margin:3px;cursor:pointer}.tabs button.on{background:#b5651d;color:#fff}
+.goal{background:#fff;border-left:6px solid #b5651d;padding:12px 16px;border-radius:8px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}.opt{background:#fff;border:2px solid #f0e0c4;border-radius:12px;padding:14px;cursor:pointer;min-height:120px}.opt:hover,.opt:focus{border-color:#b5651d}.opt.pick{background:#fff1dc;border-color:#b5651d}
+.opt h4{margin:0 0 6px}.mode{font-size:12px;color:#8a6a3a}#detail{background:#fff;border-radius:12px;padding:14px 18px;display:none}pre{white-space:pre-wrap;background:#f4efe6;padding:12px;border-radius:8px;font-size:13px}@media(max-width:700px){.grid{grid-template-columns:1fr}}</style></head><body><div class="wrap">
+<h1>Choice Boards</h1><div class="tabs" id="tabs"></div><div id="board"></div><div id="detail"></div>
+<h3>Options I cut, and why</h3><div id="cut"></div>
+<h3>The assistant's instructions (saved in a Project)</h3><pre>You plan choice boards with the PATHS method.
+P - Purpose: restate the one learning goal in a sentence.
+A - Assessment: name the evidence that would prove a student met it.
+T - Tracks: draft options in different modes (write, draw, speak, build, perform).
+H - Hold the line: cut any option that doesn't require the same thinking as the goal.
+S - Success criteria: give one shared checklist that every option is graded against.
+Output an interactive web page. List the options you cut and the reason for each.</pre></div>
+<script>
+const B=[{name:'Board 1: Cause and effect (Grade 6 science)',goal:'Explain how one change in a food web causes effects on at least two other populations.',proof:'The student traces a chain of at least two effects and explains each link.',
+ opts:[['Chain diagram','Draw','Draw the food web, remove one species, and annotate each effect with arrows and one sentence.'],['News report','Speak','Record a 90-second "breaking news" report on what happened after the species disappeared, naming two effects.'],['Letter from an animal','Write','Write as an animal two steps away from the change and explain how it reached you.'],['Domino model','Build','Build a domino or card chain where each piece is a population; explain each fall out loud or in captions.'],['Then and now comic','Draw','Six panels showing the web before and after, with a caption per effect.'],['Debate card','Speak','Argue which effect matters most, using the chain as your evidence.']],
+ cut:[['Food web poster','Lists the species but doesn\'t require explaining effects. Looks engaging, misses the goal.'],['Animal trivia quiz','Checks recall of facts, not cause and effect.']]},
+ {name:'Board 2: Main idea (Grade 4 reading)',goal:'Identify the main idea of a nonfiction passage and support it with two key details.',proof:'The student states a main idea in one sentence and cites two details from the text.',
+ opts:[['Table top','Draw','Draw a table: the top is the main idea, the legs are two details with page numbers.'],['Headline writer','Write','Write a headline and two-line summary that a reader could check against the passage.'],['Teach it','Speak','Explain the main idea to a partner in one minute, pointing to two details in the text.'],['Hashtag post','Write','Write a short social post with the main idea and two details as evidence.'],['Sort it','Build','Sort sentence strips into "main idea" and "details" and justify one choice.'],['Interview','Perform','Interview the author: two questions whose answers are the key details.']],
+ cut:[['Draw your favorite part','Asks for a preference, not the main idea.'],['Make a word search','Practices vocabulary, not finding the main idea.']]}];
+let bi=0;
+function draw(){tabs.innerHTML=B.map((b,i)=>`<button class="${i===bi?'on':''}" onclick="bi=${i};draw()">${b.name}</button>`).join('');const b=B[bi];detail.style.display='none';
+ board.innerHTML=`<div class="goal"><b>Learning goal:</b> ${b.goal}<br><b>Evidence of success:</b> ${b.proof}</div><p>Pick one square. Every option is graded with the same checklist.</p><div class="grid">${b.opts.map((o,i)=>`<div class="opt" tabindex="0" role="button" onclick="pick(${i})" onkeydown="if(event.key==='Enter')pick(${i})"><span class="mode">${o[1]}</span><h4>${o[0]}</h4>${o[2]}</div>`).join('')}</div>`;
+ cut.innerHTML='<ul>'+b.cut.map(c=>`<li><b>${c[0]}:</b> ${c[1]}</li>`).join('')+'</ul>'}
+function pick(i){const b=B[bi],o=b.opts[i];document.querySelectorAll('.opt').forEach((e,k)=>e.classList.toggle('pick',k===i));detail.style.display='block';
+ detail.innerHTML=`<h3>You chose: ${o[0]}</h3><p>${o[2]}</p><b>Checklist (same for every option)</b><ul><li>${b.proof}</li><li>Uses accurate vocabulary from the lesson.</li><li>Someone else could follow your explanation without you there.</li></ul>`}
+draw();
+</script></body></html>

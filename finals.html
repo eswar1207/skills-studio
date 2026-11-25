@@ -1,0 +1,25 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Distributed Systems Finals Guide</title>
+<style>body{font-family:Georgia,serif;margin:0;background:#fffdf8;color:#222}.wrap{max-width:780px;margin:auto;padding:36px 20px}h1{font-family:system-ui,Arial;margin:0}h2{font-family:system-ui,Arial;color:#8a3b12;border-bottom:2px solid #f0d9c8;padding-bottom:4px;margin-top:36px}
+details{background:#fff4ea;border-radius:8px;padding:10px 14px;margin:8px 0}summary{cursor:pointer;font-family:system-ui,Arial;font-weight:600}.toc a{display:inline-block;margin:4px 10px 4px 0;font-family:system-ui;color:#8a3b12}.key{background:#f6f6f2;border-left:4px solid #8a3b12;padding:8px 14px}</style></head><body><div class="wrap">
+<h1>Distributed Systems: Finals Study Guide</h1><p>Four exam topics, built from my course notes. Each section ends with practice questions. Answer from memory first, then click to check.</p>
+<div class="toc"><a href="#t1">1. Consistency models</a><a href="#t2">2. Replication and quorums</a><a href="#t3">3. Consensus</a><a href="#t4">4. Time and ordering</a></div>
+<h2 id="t1">1. Consistency models</h2>
+<p><b>Linearizability</b> is the strongest common model: every operation appears to take effect at one instant between its start and its end, so a read always sees the latest completed write. <b>Eventual consistency</b> only promises that replicas converge if updates stop; reads in the meantime can be stale.</p>
+<p class="key"><b>CAP:</b> during a network partition, a system has to choose between staying consistent (refusing some requests) and staying available (answering with possibly stale data).</p>
+<details><summary>Q1. A read returns a value older than a write that already finished. Which model allows this?</summary>Eventual consistency allows it. Linearizability does not.</details>
+<details><summary>Q2. What does CAP force you to choose, and when?</summary>Consistency or availability, and only while a network partition is happening.</details>
+<h2 id="t2">2. Replication and quorums</h2>
+<p>With N replicas, a write waits for W acknowledgements and a read asks R replicas. If <b>R + W &gt; N</b>, every read set overlaps every write set, so a read reaches at least one replica with the latest write. <b>Asynchronous replication</b> is faster but can lose writes the leader acknowledged and had not yet copied when it failed.</p>
+<details><summary>Q3. N = 5, W = 3. What is the smallest R that guarantees overlap?</summary>R = 3, because 3 + 3 = 6 &gt; 5.</details>
+<details><summary>Q4. Why can asynchronous replication lose an acknowledged write?</summary>The leader replies before copying the write; if it fails before a follower receives it, the new leader never had it.</details>
+<h2 id="t3">3. Consensus</h2>
+<p><b>Raft</b> elects one leader per term. Followers that hear no heartbeat start an election after a <b>randomized timeout</b>, which makes split votes rare. A log entry is <b>committed</b> once the leader has replicated it on a majority. <b>Two-phase commit</b> (prepare, then commit) is not consensus: if the coordinator fails after everyone votes yes, participants block. <b>Split brain</b>, two leaders at once, is prevented by majority quorums and fencing tokens.</p>
+<details><summary>Q5. When is a Raft log entry committed?</summary>When the leader has stored it on a majority of servers.</details>
+<details><summary>Q6. Why does two-phase commit block?</summary>Participants that voted yes cannot commit or abort on their own; they wait for the coordinator.</details>
+<details><summary>Q7. What problem do randomized election timeouts solve?</summary>Many followers starting elections at once and splitting the vote.</details>
+<h2 id="t4">4. Time and ordering</h2>
+<p><b>Lamport clocks</b> give an order consistent with causality: if A happened before B, A's timestamp is smaller. They cannot tell whether two events were concurrent. <b>Vector clocks</b> can. <b>Idempotent</b> operations make retries safe, and <b>consistent hashing</b> moves only about 1/N of keys when a node joins or leaves.</p>
+<details><summary>Q8. Two events have Lamport timestamps 4 and 7. Did the first cause the second?</summary>Not necessarily. A smaller Lamport timestamp doesn't prove causality; you need vector clocks to tell.</details>
+<details><summary>Q9. Why should a payment API be idempotent?</summary>A client that times out will retry. Idempotency (for example, an idempotency key) makes the retry charge only once.</details>
+<p style="font-family:system-ui;font-size:13px;color:#888;margin-top:40px">Checked against my notes. Facts here are standard textbook definitions; confirm anything your professor defined differently.</p>
+</div></body></html>

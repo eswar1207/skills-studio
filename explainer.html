@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Eventual Consistency in 60 Seconds</title>
+<style>body{font-family:system-ui,Arial;margin:0;background:#f3f6fa;color:#172030}.wrap{max-width:900px;margin:auto;padding:24px 18px}.card{background:#fff;border-radius:12px;padding:16px 20px;margin:14px 0;box-shadow:0 1px 4px #0001}video{width:100%;border-radius:10px;background:#000}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{border-bottom:1px solid #e3e8ef;padding:7px;text-align:left;vertical-align:top}pre{white-space:pre-wrap;background:#eef1f5;padding:12px;border-radius:8px;font-size:13px}</style></head><body><div class="wrap">
+<h1>Eventual Consistency in 60 Seconds</h1>
+<video controls src="explainer.mp4" aria-describedby="tc"></video>
+<div class="card" id="tc"><h3>Text companion</h3><p>When you save a post, a big app copies it to several servers. Those copies don't all update at the same instant, so for a moment one server can still show the old version. <b>Eventual consistency</b> means that if no new changes arrive, every copy ends up the same.</p>
+<p>Think of a group chat on a bad connection: your friends' phones get your message at slightly different times, but once everyone syncs, everyone sees the same thread.</p>
+<p><b>Common misconception:</b> "eventual" doesn't mean data gets lost. The write is kept; some readers just see it a little late. Apps choose this because it keeps working when servers can't reach each other, at the cost of short-lived stale reads.</p>
+<p><b>Where the analogy breaks:</b> a chat shows messages in order, but replicas can receive updates in different orders, so real systems need rules (like last-writer-wins or merging) to agree on one final value.</p></div>
+<div class="card"><h3>Storyboard</h3><table><tr><th>Time</th><th>On screen</th><th>Narration</th></tr>
+<tr><td>0–8s</td><td>Title + question</td><td>Why did your friend see your old profile picture after you changed it?</td></tr>
+<tr><td>8–20s</td><td>Three servers, one updated</td><td>Your change is copied to several servers, and the copies don't all update at once.</td></tr>
+<tr><td>20–32s</td><td>Group-chat analogy</td><td>Like a group chat on a bad connection: messages arrive at different times.</td></tr>
+<tr><td>32–42s</td><td>All three servers match</td><td>Eventual consistency: when changes stop, every copy ends up the same.</td></tr>
+<tr><td>42–52s</td><td>Misconception, crossed out</td><td>Eventual doesn't mean lost. Some readers just see it late.</td></tr>
+<tr><td>52–60s</td><td>Trade-off summary</td><td>Apps choose this so they keep working when servers can't talk.</td></tr></table></div>
+<div class="card"><h3>Second idea (reuse test): quorums, R + W &gt; N</h3><table><tr><th>Time</th><th>On screen</th><th>Narration</th></tr>
+<tr><td>0–10s</td><td>5 servers</td><td>Your data lives on five servers. How many do you have to ask?</td></tr><tr><td>10–25s</td><td>3 servers lit for a write</td><td>Write to three of them before saying "saved."</td></tr>
+<tr><td>25–40s</td><td>3 lit for a read, overlap glows</td><td>Read from three. Any three readers share at least one server with any three writers.</td></tr><tr><td>40–55s</td><td>Formula R + W &gt; N</td><td>That's the rule: reads plus writes greater than the total guarantees overlap.</td></tr>
+<tr><td>55–60s</td><td>Misconception</td><td>Overlap means a read reaches the latest write, but you still need versions to know which copy is newest.</td></tr></table></div>
+<div class="card"><h3>The assistant's instructions (saved in a Project)</h3><pre>You turn one hard idea into a 60-second explainer using CLIP:
+C - Core: state the one idea in one sentence.
+L - Likely misconception: name it and correct it on screen.
+I - Image: one analogy, plus one line on where the analogy breaks.
+P - Plan: a timed storyboard (time, on screen, narration), 140-160 words of narration.
+Check every fact before output, and write a text companion for people who can't watch.</pre>
+<p><small>Video made with code (Python + Pillow frames, Windows text-to-speech narration, FFmpeg), not Gemini Notebook.</small></p></div></div></body></html>

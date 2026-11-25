@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Student Command Center</title>
+<style>body{font-family:ui-sans-serif,system-ui,Arial;margin:0;color:#37352f;background:#fff}.cover{height:110px;background:linear-gradient(90deg,#d3e5ef,#e8deee)}.wrap{max-width:960px;margin:auto;padding:24px}h1{font-size:36px;margin:6px 0}
+.call{background:#f1f1ef;border-radius:6px;padding:12px 14px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}h2{font-size:20px;border-bottom:1px solid #eee;padding-bottom:4px}table{width:100%;border-collapse:collapse;font-size:14px}td,th{border-bottom:1px solid #e9e9e7;padding:7px;text-align:left}
+.tag{background:#e3f2e8;padding:2px 7px;border-radius:4px;font-size:12px}.tag.todo{background:#fbeed5}.tag.late{background:#fde2e1}a.rel{color:#37352f;text-decoration:underline dotted;cursor:pointer}select{padding:4px}#course{background:#fbfbfa;border:1px solid #eee;border-radius:8px;padding:14px;display:none}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}</style></head><body><div class="cover"></div><div class="wrap">
+<div style="font-size:46px">🎓</div><h1>Student Command Center</h1>
+<div class="call">📌 <b>What's next:</b> <span id="next"></span></div>
+<div class="grid"><div><h2>📚 Courses</h2><table id="courses"></table><div id="course"></div></div>
+<div><h2>✅ Tasks</h2><table id="tasks"></table></div></div>
+<h2>📝 Assignments <select id="view" onchange="drawA()"><option value="due">View: by due date</option><option value="open">View: not done</option><option value="course">View: grouped by course</option></select></h2><table id="asg"></table>
+<h2>🗒️ Notes</h2><table id="notes"></table>
+<p style="color:#999;font-size:13px">Four databases (Courses, Assignments, Notes, Tasks). Every assignment and note links to its course; click a course to see everything that belongs to it. Built as a web page that copies a Notion layout, not in Notion itself.</p></div>
+<script>
+const C=[{id:'ds',name:'Distributed Systems',code:'CS 6380',when:'Tue/Thu 10:00'},{id:'ml',name:'Machine Learning',code:'CS 6375',when:'Mon/Wed 13:00'},{id:'db',name:'Database Design',code:'CS 6360',when:'Fri 09:00'}];
+const A=[{t:'Raft lab: leader election',c:'ds',due:'2026-11-27',s:'In progress'},{t:'Problem set 5: quorums',c:'ds',due:'2026-12-02',s:'Not started'},{t:'Final project report',c:'ml',due:'2026-12-05',s:'In progress'},{t:'Homework 6: SVMs',c:'ml',due:'2026-11-26',s:'Done'},{t:'ER diagram for project',c:'db',due:'2026-11-28',s:'Not started'},{t:'SQL quiz 4',c:'db',due:'2026-12-01',s:'Not started'}];
+const N=[{t:'Lecture 18: Raft log replication',c:'ds',d:'2026-11-20'},{t:'Lecture 19: Two-phase commit',c:'ds',d:'2026-11-25'},{t:'Kernel trick summary',c:'ml',d:'2026-11-19'},{t:'Normal forms cheat sheet',c:'db',d:'2026-11-21'}];
+const K=[{t:'Email TA about lab extension policy',done:false},{t:'Book study room for Thursday',done:true},{t:'Print ER diagram draft',done:false}];
+const cn=id=>C.find(c=>c.id===id).name,link=id=>`<a class="rel" onclick="openC('${id}')">${cn(id)}</a>`;
+const tag=a=>a.s==='Done'?'<span class="tag">Done</span>':`<span class="tag todo">${a.s}</span>`;
+courses.innerHTML='<tr><th>Course</th><th>Code</th><th>Meets</th></tr>'+C.map(c=>`<tr><td>${link(c.id)}</td><td>${c.code}</td><td>${c.when}</td></tr>`).join('');
+function drawA(){let r=[...A];const v=view.value;if(v==='open')r=r.filter(a=>a.s!=='Done');r.sort((x,y)=>v==='course'?x.c.localeCompare(y.c)||x.due.localeCompare(y.due):x.due.localeCompare(y.due));
+ asg.innerHTML='<tr><th>Assignment</th><th>Course</th><th>Due</th><th>Status</th></tr>'+r.map(a=>`<tr><td>${a.t}</td><td>${link(a.c)}</td><td>${a.due}</td><td>${tag(a)}</td></tr>`).join('')}
+notes.innerHTML='<tr><th>Note</th><th>Course</th><th>Date</th></tr>'+N.map(n=>`<tr><td>${n.t}</td><td>${link(n.c)}</td><td>${n.d}</td></tr>`).join('');
+function drawT(){tasks.innerHTML=K.map((k,i)=>`<tr><td><label><input type="checkbox" ${k.done?'checked':''} onchange="K[${i}].done=this.checked;drawT()"> ${k.done?'<s>'+k.t+'</s>':k.t}</label></td></tr>`).join('')}
+function openC(id){const c=C.find(x=>x.id===id);course.style.display='block';course.innerHTML=`<b>${c.name}</b> (${c.code})<br><u>Assignments</u><ul>${A.filter(a=>a.c===id).map(a=>`<li>${a.t}, due ${a.due} ${tag(a)}</li>`).join('')}</ul><u>Notes</u><ul>${N.filter(n=>n.c===id).map(n=>`<li>${n.t}</li>`).join('')}</ul>`}
+const nx=A.filter(a=>a.s!=='Done').sort((x,y)=>x.due.localeCompare(y.due))[0];next.innerHTML=`${nx.t} for ${link(nx.c)}, due ${nx.due}.`;drawA();drawT();
+</script></body></html>

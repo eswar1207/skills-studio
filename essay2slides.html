@@ -1,0 +1,31 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Essay to Slides</title>
+<style>body{font-family:system-ui,Arial;margin:0;background:#f2f5f9;color:#1b2430}header{background:#0f3d5e;color:#fff;padding:16px 22px}main{max-width:980px;margin:auto;padding:18px}textarea{width:100%;min-height:200px;box-sizing:border-box;padding:10px;font:14px Georgia,serif}
+button{background:#0f3d5e;color:#fff;border:0;border-radius:8px;padding:9px 16px;margin:4px 4px 4px 0;cursor:pointer}.slide{background:#fff;border-radius:12px;box-shadow:0 2px 8px #0001;margin:14px 0;display:grid;grid-template-columns:2fr 1fr}
+.face{padding:24px;aspect-ratio:16/9;box-sizing:border-box;border-right:1px solid #eee}.face h2{margin:0 0 12px;color:#0f3d5e}.notes{padding:14px;font-size:13px;color:#555}[contenteditable]:focus{outline:2px dashed #7bb0d6}
+#pv{position:fixed;inset:0;background:#0b1520;color:#fff;display:none;flex-direction:column;justify-content:center;padding:6vw;box-sizing:border-box}#pv h2{font-size:4.2vw;margin:0 0 3vw}#pv li{font-size:2.4vw;margin:1vw 0}#pv small{position:absolute;bottom:20px;left:6vw;opacity:.6}
+@media(max-width:700px){.slide{grid-template-columns:1fr}}</style></head><body>
+<header><h1 style="margin:0;font-size:24px">Essay to Slides</h1><small>One idea per slide. Paste an essay, get an editable deck with speaker notes and a full-screen presenter view.</small></header>
+<main><textarea id="essay"></textarea><button onclick="make()">Make slides</button><button onclick="present(0)">Present (full screen)</button><span id="info"></span><div id="deck"></div></main>
+<div id="pv" onclick="step(1)"><h2 id="pt"></h2><ul id="pb"></ul><small id="pn"></small></div>
+<script>
+// Rule-based, no AI call: paragraph = slide, first sentence = title, next sentences = bullets, paragraph = speaker notes.
+const SAMPLE=`Evaluations are what turn an AI demo into a tool people can trust. A demo shows the best answer once. An evaluation shows how often the answer is right.
+
+A good evaluation starts from real tasks. Pick the questions people actually ask, write down what a correct answer looks like, and keep the set fixed so results can be compared over time.
+
+Scoring has to be honest about partial failure. A fluent answer with one wrong number is still wrong for someone who acts on that number. Graders should check the facts that matter, not the tone.
+
+Evaluations also catch regressions. When a model or prompt changes, the same test set shows what got better and what quietly got worse.
+
+Teams that measure before they scale spend less time arguing about anecdotes. The numbers become the shared reference point, and trust follows the evidence.`;
+const sent=p=>p.match(/[^.!?]+[.!?]+(\s|$)/g)?.map(s=>s.trim())||[p.trim()];
+let slides=[],pi=0;
+function build(text){return text.split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean).map(p=>{const s=sent(p);return{title:s[0].replace(/[.!?]$/,''),bullets:s.slice(1,4),notes:p}})}
+function make(){slides=build(essay.value);info.textContent=` ${slides.length} slides`;deck.innerHTML=slides.map((s,i)=>`<div class="slide"><div class="face"><h2 contenteditable oninput="slides[${i}].title=this.innerText">${s.title}</h2><ul>${s.bullets.map((b,j)=>`<li contenteditable oninput="slides[${i}].bullets[${j}]=this.innerText">${b}</li>`).join('')}</ul></div><div class="notes"><b>Speaker notes</b><div contenteditable oninput="slides[${i}].notes=this.innerText">${s.notes}</div></div></div>`).join('')}
+function present(i){if(!slides.length)make();pi=i;pv.style.display='flex';pv.requestFullscreen?.().catch(()=>{});show()}
+function show(){const s=slides[pi];pt.textContent=s.title;pb.innerHTML=s.bullets.map(b=>`<li>${b}</li>`).join('');pn.textContent=`${pi+1}/${slides.length} · arrows to move · Esc to exit`}
+function step(d){pi=Math.max(0,Math.min(slides.length-1,pi+d));show()}
+document.onkeydown=e=>{if(pv.style.display!=='flex')return;if(e.key==='ArrowRight'||e.key===' ')step(1);if(e.key==='ArrowLeft')step(-1);if(e.key==='Escape'){pv.style.display='none';document.fullscreenElement&&document.exitFullscreen()}};
+document.onfullscreenchange=()=>{if(!document.fullscreenElement)pv.style.display='none'};
+console.assert(build('A one. B two.\n\nC three.').length===2,'paragraph split');essay.value=SAMPLE;make();
+</script></body></html>
